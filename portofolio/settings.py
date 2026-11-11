@@ -133,6 +133,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 WHITENOISE_USE_FINDERS = True
+MEDIA_ROOT = BASE_DIR / 'static' / 'uploads'
+MEDIA_URL = '/media/' if DEBUG else '/static/uploads/'
 
 
 # Email
@@ -144,8 +146,5 @@ MAILERS = {
     },
 }
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://fathir-atha-myportofolio.pws.cs.ui.ac.id",
-]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
