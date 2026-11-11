@@ -1,0 +1,9 @@
+django~=5.0
+gunicorn
+Pillow
+psycopg2-binary
+python-dotenv
+whitenoise
+urllib3
+python-dotenv
+djangorestframework~=3.18.3

@@ -1,0 +1,37 @@
+<p class="experience-status" style="background:transparent;border:none;padding:0;">
+  <button type="button"
+          class="button button-danger"
+          popovertarget="delete-organization-{{ org.id }}"
+          aria-label="Hapus {{ org.name }}">
+    Hapus
+  </button>
+</p>
+
+<div id="delete-organization-{{ org.id }}"
+      class="project-delete-modal"
+      popover="auto"
+      role="dialog"
+      aria-modal="true">
+  <button type="button"
+          class="project-delete-modal__backdrop"
+          popovertarget="delete-organization-{{ org.id }}"
+          popovertargetaction="hide"
+          aria-label="Tutup"></button>
+  <div class="project-delete-modal__content">
+    <button type="button"
+            class="project-delete-modal__close"
+            popovertarget="delete-organization-{{ org.id }}"
+            popovertargetaction="hide">×</button>
+    <h2>Hapus Organization?</h2>
+    <p>Yakin ingin menghapus <strong>{{ org.name }}</strong>?</p>
+    <div class="project-delete-modal__actions">
+      <button type="button" class="button button-secondary"
+              popovertarget="delete-organization-{{ org.id }}"
+              popovertargetaction="hide">Batal</button>
+      <form method="post" action="{% url 'main:delete_organization' org.id %}">
+        {% csrf_token %}
+        <button type="submit" class="button button-danger">Ya, Hapus</button>
+      </form>
+    </div>
+  </div>
+</div>

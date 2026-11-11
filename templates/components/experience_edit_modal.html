@@ -1,0 +1,42 @@
+<div id="edit-experience-modal" class="project-form-modal" popover="auto"
+      role="dialog" aria-modal="true" aria-labelledby="edit-experience-modal-title">
+  <button type="button" class="project-form-modal__backdrop"
+          popovertarget="edit-experience-modal" popovertargetaction="hide"
+          aria-label="Tutup form"></button>
+  <div class="project-form-modal__content">
+    <button type="button" class="project-form-modal__close"
+            popovertarget="edit-experience-modal" popovertargetaction="hide"
+            aria-label="Tutup form">&times;</button>
+    <h2 id="edit-experience-modal-title">Edit Experience</h2>
+    <form id="experience-edit-form" class="project-form">
+      <div class="form-group">
+        <label for="edit-title">Judul Pengalaman</label>
+        <input type="text" name="title" id="edit-title" class="form-control" maxlength="255" required>
+      </div>
+      <div class="form-group">
+        <label for="edit-description">Deskripsi Pengalaman</label>
+        <textarea name="description" id="edit-description" class="form-control" rows="4" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-category">Kategori</label>
+        <select name="category" id="edit-category" class="form-control">
+          {% for value, label in form.fields.category.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="edit-is-ongoing">Status</label>
+        <select name="is_ongoing" id="edit-is-ongoing" class="form-control">
+          <option value="true">Sedang berlangsung</option>
+          <option value="false">Selesai</option>
+        </select>
+      </div>
+      <div class="project-form-modal__actions">
+        <button type="button" class="button button-secondary"
+                popovertarget="edit-experience-modal" popovertargetaction="hide">Batal</button>
+        <button type="submit" class="button">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>

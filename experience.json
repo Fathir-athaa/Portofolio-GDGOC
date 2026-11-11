@@ -1,0 +1,14 @@
+[
+{
+  "model": "main.experience",
+  "pk": "08b49629-ad12-4f79-a813-a0f48b243206",
+  "fields": {
+    "title": "Staff UXA - Compfest 18",
+    "description": "Membuat kurikulum UXA untuk bootcamp yang berjalan 3 minggu, dan menjadi LO untuk peserta Compfest 18",
+    "category": "Volunteer",
+    "thumbnail": null,
+    "started_at": "2026-09-09T11:46:15.756Z",
+    "ended_at": null
+  }
+}
+]

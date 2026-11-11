@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Organization - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <section class="experience-section" id="organization">
+    <div class="container">
+        <p class="section-kicker">Organizational involvement and activities</p>
+
+    <div class="project-header">
+        <h1>Organizations</h1>
+        {% if user.is_superuser %}
+        <button type="button" class="button project-add-button"
+                popovertarget= "add-organization-modal">
+        <span aria-hidden="true">+</span> Tambah Organization
+        </button>
+        {% endif %}
+    </div>
+
+    <form id="search-form" class="project-search">
+        <input type="search" id="search-input" name="name" value="{{ name_query }}"
+                placeholder="Cari berdasarkan nama organisasi"
+                class="project-search__input" aria-label="Cari organisasi">
+        <button type="submit" class="button">Cari</button>
+    </form>
+
+    <div id="loading" class="empty-state hide"><p>Memuat data...</p></div>
+        <div id="error" class="empty-state hide"><p>Gagal memuat data. Silakan coba lagi.</p></div>
+        <div id="empty" class="empty-state hide"><p>Belum ada Organisasi yang ditambahkan.</p></div>
+        <div id="grid" class="experience-grid hide"></div>
+    </div>
+</section>
+</main>
+
+{% if user.is_superuser %}
+{% include "components/organization_form_modal.html" %}
+{% endif %}
+
+{% if user.is_superuser or is_editor %}
+{% include "components/organization_edit_modal.html" %}
+{% endif %}
+
+{% csrf_token %}
+<script>
+    // getCookie() dan escapeHtml() sudah tersedia dari static/js/utils.js (di-load oleh base.html)
+    const BASE_ORGANIZATIONS_ENDPOINT = "{% url 'api:organization-list' %}";
+    const DETAIL_ORGANIZATION_ENDPOINT = "{% url 'api:organization-detail' 0 %}";
+    const STAR_ORGANIZATION_ENDPOINT = "{% url 'api:organization-star' 0 %}";
+    const LOGIN_PAGE = "{% url 'main:login' %}";
+    const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+    const IS_AUTHENTICATED = "{{ user.is_authenticated|yesno:'true,false' }}" === "true";
+    const CAN_EDIT = IS_SUPERUSER || "{{ is_editor|yesno:'true,false' }}" === "true";
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    const EMPTY_DEFAULT = "Belum ada organisasi yang ditambahkan.";
+    const EMPTY_SEARCH = "Tidak ada organisasi dengan nama tersebut.";
+
+    const loadingState = document.getElementById('loading');
+    const errorState = document.getElementById('error');
+    const emptyState = document.getElementById('empty');
+    const gridContainer = document.getElementById('grid');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const organizationForm = document.getElementById('organization-form');
+    const organizationEditForm = document.getElementById('organization-edit-form');
+    let organizationsById = new Map(); // data terakhir dari API, dipakai untuk mengisi modal edit
+    let organizationsAbortController;
+    let searchDebounceTimer;
+
+    // ID Organization berupa angka, jadi URL dummy memakai 0 -> ganti "/0/" dengan "/<id>/"
+    function organizationEndpoint(pattern, id) {
+        return pattern.replace('/0/', `/${encodeURIComponent(id)}/`);
+    }
+
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+        loadingState.classList.toggle('hide', !showLoading);
+        errorState.classList.toggle('hide', !showError);
+        emptyState.classList.toggle('hide', !showEmpty);
+        gridContainer.classList.toggle('hide', !showGrid);
+    }
+
+    function buildOrganizationCardElement(organization) {
+        const article = document.createElement('article');
+        article.className = 'experience-card';
+
+        const imagesHtml = buildImageSlider(organization.images, organization.name);
+
+        const statusHtml = organization.is_ongoing
+            ? '<span class="experience-status">Sedang berlangsung</span>'
+            : '<span class="experience-status" style="background-color: rgba(255,255,255,0.05); color: #a0a0a0; border-color: rgba(255,255,255,0.1);">Selesai</span>';
+
+        const starTitle = organization.star_count > 0
+            ? `Dibintangi oleh ${escapeHtml(organization.starred_by_names)}`
+            : 'Jadilah yang pertama memberi star';
+
+        const starHtml = IS_AUTHENTICATED
+            ? `<button type="button" class="button button-star${organization.is_starred ? ' is-starred' : ''}"
+                    data-action="star" data-id="${escapeHtml(organization.id)}" title="${starTitle}">
+                <span aria-hidden="true">★</span>
+                ${organization.is_starred ? 'Unstar' : 'Star'}
+                <span class="star-count">${organization.star_count}</span>
+            </button>`
+            : `<a href="${escapeHtml(LOGIN_PAGE)}" class="button button-star" title="${starTitle}">
+                <span aria-hidden="true">★</span>
+                Login untuk star
+                <span class="star-count">${organization.star_count}</span>
+            </a>`;
+
+        const editHtml = CAN_EDIT
+            ? `<button type="button" class="button"
+                    data-action="edit" data-id="${escapeHtml(organization.id)}">Edit</button>`
+            : '';
+
+        const deleteHtml = IS_SUPERUSER
+            ? `<button type="button" class="button button-danger"
+                    data-action="delete" data-id="${escapeHtml(organization.id)}">Hapus</button>`
+            : '';
+
+        article.innerHTML = `
+        <div>
+            ${imagesHtml}
+            <div class="experience-header-row">
+                <h2>${escapeHtml(organization.name)}</h2>
+                ${statusHtml}
+            </div>
+                        <span class="experience-category">${escapeHtml(organization.category_display)}</span>
+            <p class="experience-description">${escapeHtml(organization.description)}</p>
+            <div class="project-actions">
+                ${starHtml}
+                ${editHtml}
+                ${deleteHtml}
+            </div>
+        </div>
+        `;
+        return article;
+    }
+
+    async function fetchOrganizations(searchQuery = '') {
+        if (organizationsAbortController) organizationsAbortController.abort();
+        organizationsAbortController = new AbortController();
+        try {
+            displayPageSection({ showLoading: true });
+            const url = new URL(BASE_ORGANIZATIONS_ENDPOINT, window.location.origin);
+            if (searchQuery) url.searchParams.set('name', searchQuery);
+            const response = await fetch(url, {
+                headers: { Accept: 'application/json' },
+                signal: organizationsAbortController.signal,
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const organizations = await response.json();
+            organizationsById = new Map(organizations.map(item => [String(item.id), item]));
+            gridContainer.replaceChildren(...organizations.map(buildOrganizationCardElement));
+            if (organizations.length === 0) {
+                emptyState.querySelector('p').textContent = searchQuery ? EMPTY_SEARCH : EMPTY_DEFAULT;
+            }
+            displayPageSection({ showGrid: organizations.length > 0, showEmpty: organizations.length === 0 });
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error(error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    function apiErrorMessage(data, status) {
+        const messages = Object.values(data).flat().filter(value => typeof value === 'string');
+        return messages.join(' ') || `Terjadi kesalahan (HTTP ${status}).`;
+    }
+
+    async function writeOrganization(url, method, payload) {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: payload === undefined ? undefined : JSON.stringify(payload),
+        });
+        if (response.status === 204) return null;
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(apiErrorMessage(data, response.status));
+        return data;
+    }
+
+    async function addOrganization(event) {
+        event.preventDefault();
+        const button = organizationForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+            const fields = new FormData(organizationForm);
+            const payload = Object.fromEntries(
+                ['name', 'description', 'category', 'is_ongoing'].map(name => [name, fields.get(name)])
+            );
+            payload.is_ongoing = payload.is_ongoing === 'true'; // dropdown Status -> true/false
+            await writeOrganization(BASE_ORGANIZATIONS_ENDPOINT, 'POST', payload);
+            organizationForm.reset();
+            document.getElementById('add-organization-modal').hidePopover();
+            showToast('Berhasil', 'Organization baru berhasil ditambahkan!', 'success');
+            await fetchOrganizations(searchInput.value.trim());
+        } catch (error) {
+            showToast('Gagal menambahkan data', error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    if (organizationForm) organizationForm.addEventListener('submit', addOrganization);
+
+    // ===== EDIT (PATCH) lewat modal: dipakai pemilik dan Editor =====
+    function openEditModal(id) {
+        const organization = organizationsById.get(String(id));
+        if (!organization || !organizationEditForm) return;
+        organizationEditForm.dataset.id = organization.id;
+                document.getElementById('edit-name').value = organization.name;
+        document.getElementById('edit-description').value = organization.description;
+        document.getElementById('edit-category').value = organization.category;
+        // Status: true = Sedang berlangsung, false = Selesai
+        document.getElementById('edit-is-ongoing').value = organization.is_ongoing ? 'true' : 'false';
+        document.getElementById('edit-organization-modal').showPopover();
+    }
+
+    async function editOrganization(event) {
+        event.preventDefault();
+        const button = organizationEditForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+            const fields = new FormData(organizationEditForm);
+            const payload = Object.fromEntries(
+                ['name', 'description', 'category', 'is_ongoing'].map(name => [name, fields.get(name)])
+            );
+            payload.is_ongoing = payload.is_ongoing === 'true'; // dropdown Status -> true/false
+            await writeOrganization(
+                organizationEndpoint(DETAIL_ORGANIZATION_ENDPOINT, organizationEditForm.dataset.id),
+                'PATCH', payload,
+            );
+            document.getElementById('edit-organization-modal').hidePopover();
+            showToast('Berhasil', 'Organization berhasil diperbarui!', 'success');
+            await fetchOrganizations(searchInput.value.trim());
+        } catch (error) {
+            showToast('Gagal memperbarui data', error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    if (organizationEditForm) organizationEditForm.addEventListener('submit', editOrganization);
+
+    gridContainer.addEventListener('click', async function (event) {
+        const button = event.target.closest('button[data-action]');
+        if (!button || button.disabled) return;
+        const action = button.dataset.action;
+        if (action === 'edit') {
+            openEditModal(button.dataset.id);
+            return;
+        }
+        if (action === 'delete' && !window.confirm('Yakin ingin menghapus data ini?')) return;
+        button.disabled = true;
+        try {
+            const pattern = action === 'star' ? STAR_ORGANIZATION_ENDPOINT : DETAIL_ORGANIZATION_ENDPOINT;
+            await writeOrganization(organizationEndpoint(pattern, button.dataset.id),
+                action === 'star' ? 'POST' : 'DELETE');
+            showToast('Berhasil', action === 'star' ? 'Star diperbarui.' : 'Organization berhasil dihapus.', 'success');
+            await fetchOrganizations(searchInput.value.trim());
+        } catch (error) {
+            showToast('Permintaan gagal', error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => fetchOrganizations(searchInput.value.trim()), SEARCH_DEBOUNCE_DELAY);
+    });
+    searchForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        clearTimeout(searchDebounceTimer);
+        fetchOrganizations(searchInput.value.trim());
+    });
+
+    fetchOrganizations(searchInput.value.trim());
+</script>
+{% endblock content %}

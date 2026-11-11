@@ -1,0 +1,9 @@
+<form method="post" action="{% url 'main:toggle_star_organization' org.id %}" class="star-form">
+  {% csrf_token %}
+  <button type="submit"
+    class="button button-star{% if user in org.starred_by.all %} is-starred{% endif %}">
+    <span aria-hidden="true">★</span>
+    {% if user in org.starred_by.all %}Unstar{% else %}Star{% endif %}
+    <span class="star-count">{{ org.starred_by.count }}</span>
+  </button>
+</form>

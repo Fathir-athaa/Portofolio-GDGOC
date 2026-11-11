@@ -1,0 +1,761 @@
+/*ABOUT ME*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --paper: #0b0204;
+  --ink: #ffffff;
+  --text-muted: #d4a5ad;
+  --accent-dark: #af0821;
+  --accent: #800018;
+  --line: #33050e;
+  --radius: 10px;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  line-height: 1.6;
+  background-image: radial-gradient(var(--line) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+h1,
+.brand {
+  font-family:
+    "Space Grotesk",
+    -apple-system,
+    sans-serif;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header .container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-header nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2rem;
+}
+
+.site-header nav a {
+  position: relative;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 6px 0;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.site-header nav a::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #ff0033;
+  box-shadow:
+    0 0 8px #ff0033,
+    0 0 16px #ff0033;
+  transition: width 0.3s ease-in-out;
+}
+
+.site-header nav a:hover {
+  color: #ff3355;
+  text-shadow: 0 0 8px rgba(255, 0, 51, 0.6);
+}
+
+.site-header nav a:hover::after {
+  width: 100%;
+}
+
+.hero {
+  padding: 4.5rem 0 5rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  grid-template-areas:
+    "identity photo"
+    "details  photo";
+  gap: 1.5rem 3rem;
+}
+
+.hero-identity {
+  grid-area: identity;
+}
+
+.hero-details {
+  grid-area: details;
+}
+
+.hero-kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  animation: flip3D 0.8s ease-out forwards;
+}
+
+.hero-identity h1 {
+  font-size: clamp(3rem, 7vw, 5rem);
+  line-height: 0.95;
+}
+
+.bio {
+  color: var(--text-muted);
+  max-width: 480px;
+  margin-bottom: 1.5rem;
+}
+
+.meta-list {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-row dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.meta-row dd {
+  font-weight: 600;
+}
+
+.social-links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #000000;
+  background-color: #ffffff;
+  border-radius: var(--radius);
+  padding: 0.5rem 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: rgba(255, 75, 55, 0.6);
+
+  box-shadow:
+    0 0 18px rgba(230, 0, 35, 0.6),
+    0 0 38px rgba(255, 90, 50, 0.45);
+  transform: translateY(-2px);
+}
+
+.hero-photo {
+  grid-area: photo;
+  align-self: center;
+  position: relative;
+}
+
+.photo-block {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent-dark);
+  border-radius: var(--radius);
+  z-index: 0;
+  filter: blur(25px);
+  opacity: 0.7;
+  transition: all 0.4s ease;
+}
+
+.hero-photo:hover .photo-block {
+  animation: lampGlow 1.8s ease-in-out infinite alternate;
+}
+
+.avatar {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 50px;
+  transition: transform 0.3s ease;
+}
+
+.hero-photo:hover .avatar {
+  transform: translateY(-4px) scale(1.02);
+}
+
+.site-footer {
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 600px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "identity"
+      "photo"
+      "details";
+  }
+
+  .hero-photo {
+    max-width: 220px;
+  }
+
+  .social-links {
+    justify-content: flex-start;
+  }
+}
+@keyframes lampGlow {
+  0% {
+    filter: blur(20px);
+    opacity: 0.6;
+    box-shadow: 0 0 30px var(--accent-dark);
+    transform: scale(0.98);
+  }
+  50% {
+    filter: blur(38px);
+    opacity: 1;
+    box-shadow:
+      0 0 80px var(--accent-dark),
+      0 0 110px var(--accent);
+    transform: scale(1.06);
+  }
+  100% {
+    filter: blur(25px);
+    opacity: 0.8;
+    box-shadow: 0 0 50px var(--accent-dark);
+    transform: scale(1);
+  }
+}
+
+/*SKILLS*/
+.skills-section {
+  padding: 1.5rem 0 4rem 0;
+}
+
+/*Judul & Subjudul*/
+.skills-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 2rem;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: #a0a0a0;
+  margin-bottom: 0;
+}
+
+/* Base Kartu Skills */
+.skill-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(230, 0, 35, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+  border-color: rgba(230, 0, 35, 0.6);
+  box-shadow: 0 0 20px rgba(230, 0, 35, 0.25);
+  transform: translateY(-4px);
+}
+
+.skill-card h3 {
+  font-size: 1.1rem;
+  color: #e60023;
+  margin-bottom: 1.5rem;
+}
+
+/*Custom Kartu Slider Single*/
+.slider-card {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Container Slider dengan Efek Fading Transparan di Ujung Kiri & Kanan */
+.slider-container {
+  width: 100%;
+  overflow: hidden;
+  padding: 0.5rem 0;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+/*Track Berisi Ikon yang Bergeser*/
+.slider-track {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  width: max-content;
+  animation: logo-scroll 18s linear infinite;
+  will-change: transform;
+}
+
+/*Animasi berenti Sementara Saat Kursor Mengarah ke Slider*/
+.slider-container:hover .slider-track {
+  animation-play-state: paused;
+}
+
+/*Item Ikon di Dalam Slider*/
+.slide-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #d0d0d0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.slide-item img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/*Keyframes Pergeseran*/
+@keyframes logo-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/*Aturan Animasi 3D Flip */
+@keyframes flip3D {
+  0% {
+    opacity: 0;
+    transform: perspective(400px) rotateX(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(400px) rotateX(0deg);
+  }
+}
+
+/* EXPERIENCE SECTION SKELETON */
+
+.exp-card h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.exp-badge {
+  font-size: 0.75rem;
+  background-color: rgba(230, 0, 35, 0.15);
+  color: #ff4d6d;
+  border: 1px solid rgba(230, 0, 35, 0.4);
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.exp-role {
+  color: var(--accent-dark, #ff0033);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.exp-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted, #a0a0a0);
+}
+
+.exp-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Menyamakan tinggi kartu kiri & kanan */
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+/* Gambar di Dalam Kartu */
+.exp-image {
+  width: 100%;
+  height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.exp-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsif: otomatis tumpuk atas-bawah di layar HP */
+@media (max-width: 768px) {
+  .experience-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TRACK SLIDER*/
+.exp-slider-track {
+  display: flex;
+  width: 300%; /* 300% karena ada 3 gambar */
+  height: 100%;
+  animation: expSlide 12s infinite ease-in-out;
+}
+
+.exp-slider-track img {
+  width: 33.333%; /* Tiap gambar mengambil 1/3 dari lebar track */
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Pause animasi saat kursor diarahkan ke kartu */
+.exp-card:hover .exp-slider-track {
+  animation-play-state: paused;
+}
+
+/* ANIMASI KEYFRAMES PURE CSS3 */
+@keyframes expSlide {
+  0%,
+  28% {
+    transform: translateX(0); /* Gambar 1 */
+  }
+  33%,
+  61% {
+    transform: translateX(-33.333%); /* Gambar 2 */
+  }
+  66%,
+  94% {
+    transform: translateX(-66.666%); /* Gambar 3 */
+  }
+  100% {
+    transform: translateX(0); /* Kembali ke Gambar 1 */
+  }
+}
+
+/* BAGIAN CONTACT ME */
+/* ================= CONTACT SECTION (MATCHING EXPERIENCE CARD STYLE) ================= */
+.contact-section {
+  padding: 4rem 0;
+}
+
+/* Layout Grid 2 Kolom */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  align-items: stretch;
+}
+
+/* Base Card Style (Menyamakan dengan exp-card / skill-card) */
+.contact-card {
+  background-color: transparent;
+  border: 1px solid #381017; /* Border merah gelap khas seksi Experience */
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.3s ease;
+}
+
+.contact-card:hover {
+  border-color: #5e1622;
+}
+
+.card-title {
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+/* Scrollbar Bertema Merah Gelap */
+.reviews-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reviews-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reviews-list::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 4px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb {
+  background: #5e1622; /* Thumb warna merah tua */
+  border-radius: 4px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb:hover {
+  background: #8b1e31;
+}
+
+/* Review Item Inside Card */
+.review-item {
+  background-color: rgba(18, 18, 18, 0.4);
+  border: 1px solid #281216;
+  border-radius: 12px;
+  padding: 1.1rem;
+  transition: border-color 0.2s ease;
+}
+
+.review-item:hover {
+  border-color: #4a1620;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.reviewer-name {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Subtitle / Role Merah (Persis seperti tulisan 'Staff Software engineering' di Experience) */
+.reviewer-role {
+  display: block;
+  color: #b92b3f; /* Warna merah kontras */
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.2rem;
+}
+
+.review-rating {
+  color: #ffb703; /* Bintang Emas */
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+.review-text {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Kolom Kanan */
+.contact-desc {
+  color: #a0a0a0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.contact-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Tombol Putih Kontras Tinggi */
+.social-link-btn {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 0.65rem 1.4rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.social-link-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* Responsif Mobile */
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.social-icon-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(18, 18, 18, 0.6);
+  border: 1.5px solid #5e1622; /* Inner ring merah tua */
+  color: #b92b3f; /* Warna logo ikon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(94, 22, 34, 0.25);
+}
+
+/* Efek Hover Glow */
+.social-icon-btn:hover {
+  background-color: rgba(185, 43, 63, 0.15);
+  border-color: #b92b3f;
+  color: #ff4d6d;
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px rgba(185, 43, 63, 0.5);
+}
+
+/*Menambahkan sticky navbar atau header*/
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #381017;
+}
+
+.experience-section {
+  padding: 4rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.section-kicker {
+  color: var(--accent-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.experience-section h1 {
+  margin: 0.4rem 0 1.5rem;
+  font-size: 2rem;
+}
+
+.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.experience-card {
+  padding: 1.25rem;
+  background-color: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.experience-category {
+  color: var(--accent-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.experience-card h2 {
+  margin: 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.experience-description,
+.empty-state {
+  color: var(--text-muted);
+}
+
+.experience-status {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
