@@ -41,3 +41,4 @@ ENV/
 # Python Cache
 __pycache__/
 *.pyc
+data.json
